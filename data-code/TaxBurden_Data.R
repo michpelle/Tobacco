@@ -4,7 +4,7 @@
 ## Title:         CDC Tax Burden on Tobacco
 ## Author:        Ian McCarthy
 ## Date Created:  11/12/2019
-## Date Edited:   11/13/2019
+## Date Edited:   11/19/2019
 ## Description:   Clean and analyze CDC data 
 
 
@@ -12,13 +12,14 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
 
-path.data <- "C:/Users/immccar/CloudStation/Professional/Research Data/Tobacco/"
-path.final <- "C:/Users/immccar/CloudStation/Professional/Research Projects/_Git/CDC-Tobacco/"
+path.data <- "D:/CloudStation/Professional/Research Data/Tobacco/"
+path.final <- "D:/CloudStation/Professional/Research Projects/_Git/CDC-Tobacco/"
 cig.data <- read_csv(paste0(path.data,"CDC_1970-2018.csv"),
                     col_names = TRUE)
+cpi.data <- read_xlsx("D:/CloudStation/Professional/Research Data/BLS Data/CPI_1913_2019.xlsx", skip=11)
 
 
-# Clean data --------------------------------------------------------------
+# Clean tobacco data --------------------------------------------------------------
 cig.data <- cig.data %>%
   mutate(measure = case_when(
     SubMeasureDesc == "Average Cost per pack" ~ "cost_per_pack",
@@ -40,6 +41,23 @@ final.data <- pivot_wider(cig.data,
                          values_from = "value") %>%
   arrange(state, Year)
 
+
+
+# Clean CPI data ----------------------------------------------------------
+cpi.data <- pivot_longer(cpi.data, 
+                         cols=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"),
+                         names_to="month",
+                         values_to="index")
+cpi.data <- cpi.data %>%
+  group_by(Year) %>%
+  summarize(index=mean(index, na.rm=TRUE))
+
+
+
+# Form final dataset ------------------------------------------------------
+final.data <- final.data %>%
+  left_join(cpi.data, by="Year") %>%
+  mutate(price_cpi=cost_per_pack*(100/index))
 
 write_tsv(final.data,path=paste0(path.final,"data/TaxBurden_Data.txt"),append=FALSE,col_names=TRUE)
 write_rds(final.data,paste0(path.final,"data/TaxBurden_Data.rds"))
