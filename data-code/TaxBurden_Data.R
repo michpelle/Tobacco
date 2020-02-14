@@ -12,11 +12,10 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
 
-path.data <- "D:/CloudStation/Professional/Research Data/Tobacco/"
-path.final <- "D:/CloudStation/Professional/Research Projects/_Git/CDC-Tobacco/"
-cig.data <- read_csv(paste0(path.data,"CDC_1970-2018.csv"),
-                    col_names = TRUE)
-cpi.data <- read_xlsx("D:/CloudStation/Professional/Research Data/BLS Data/CPI_1913_2019.xlsx", skip=11)
+
+source('data-code/paths.R')
+cig.data <- read_csv(paste0(path.data,"CDC_1970-2018.csv"), col_names = TRUE)
+cpi.data <- read_xlsx(paste0(path.bls,"CPI_1913_2019.xlsx"), skip = 11)
 
 
 # Clean tobacco data --------------------------------------------------------------
