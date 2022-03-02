@@ -11,11 +11,11 @@
 # Preliminaries -----------------------------------------------------------
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
-
+library(readxl)
 
 source('data-code/paths.R')
-cig.data <- read_csv(paste0(path.data,"CDC_1970-2018.csv"), col_names = TRUE)
-cpi.data <- read_xlsx(paste0(path.bls,"CPI_1913_2019.xlsx"), skip = 11)
+cig.data <- read.csv(paste0(path.data,"CDC_1970-2018.csv"), header = TRUE)
+cpi.data <- read_excel(paste0(path.bls,"CPI_1913_2019.xlsx"), skip = 11)
 
 
 # Clean tobacco data --------------------------------------------------------------
@@ -59,7 +59,8 @@ final.data <- final.data %>%
   left_join(cpi.data, by="Year") %>%
   mutate(price_cpi=cost_per_pack*(218/index))
 
-write_tsv(final.data,path=paste0(path.final,"data/TaxBurden_Data.txt"),append=FALSE,col_names=TRUE)
-write_rds(final.data,paste0(path.final,"data/TaxBurden_Data.rds"))
+#write_tsv(final.data,path=paste0(path.final,"data/TaxBurden_Data.txt"),append=FALSE,col_names=TRUE)
+#write_rds(final.data,paste0(path.final,"data/TaxBurden_Data.rds"))
 
-
+write_tsv(final.data,"TaxBurden_Data.txt")
+write_rds(final.data,"TaxBurden_Data.rds")
